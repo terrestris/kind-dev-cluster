@@ -22,3 +22,11 @@ Just execute the `kind.sh` script of this project.
 Be patient and wait until you see `Starting to serve on 127.0.0.1:8001`.
 
 Copy the token that has been logged by the script and login [here](http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/).
+
+### Cleanup cluster
+
+The cluster can be removed via 
+
+```shell
+kind delete clusters kind-dev-cluster
+```
