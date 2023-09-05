@@ -24,9 +24,16 @@ function wait_until_pods_have_started() {
 
 # exit if cluster is already running
 if kind get clusters | grep -q 'kind-dev-cluster'; then
-  echo "Cluster kind-dev-cluster already exists - In order to recreate you have to remove the existing one at first (kind delete cluster --name kind-dev-cluster)"
-  exit 1;
+  read -p "Cluster kind-dev-cluster already exists! Do you want to DELETE it and continue (y/Y) or abort (n/N)?" -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]
+  then
+    exit 1;
+  fi
 fi
+
+# delete any existing clusters
+kind delete cluster --name kind-dev-cluster
 
 # create the cluster based on the config
 kind create cluster --config kind-cluster.yaml
