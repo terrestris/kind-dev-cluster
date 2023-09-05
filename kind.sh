@@ -42,12 +42,15 @@ wait_until_pods_have_started "kubernetes-dashboard" "k8s-app=kubernetes-dashboar
 # create admin user and apply cluster role bindings
 # https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
 kubectl apply -f dashboard-adminuser.yaml
+kubectl apply -f dashboard-adminuser-secret.yaml
 kubectl apply -f cluster-role-binding.yaml
 
+echo
 echo "Use this token to login on http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/ :"
-echo ""
-kubectl -n kubernetes-dashboard create token admin-user
-echo ""
+echo
+kubectl get -n kubernetes-dashboard secret/admin-user-secret -o=jsonpath='{.data.token}' | base64 -d
+echo
+echo
 
 # make the dashboard available
 kubectl proxy
