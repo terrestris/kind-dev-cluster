@@ -45,19 +45,18 @@ wait_until_pods_have_started "ingress-nginx" "app.kubernetes.io/component=contro
 # install kubernetes-dashboard
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
 wait_until_pods_have_started "kubernetes-dashboard" "k8s-app=kubernetes-dashboard" 2 2
+kubectl apply -f ./templates/ingress-dashboard.yaml
 
 # create admin user and apply cluster role bindings
 # https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
-kubectl apply -f dashboard-adminuser.yaml
-kubectl apply -f dashboard-adminuser-secret.yaml
-kubectl apply -f cluster-role-binding.yaml
+kubectl apply -f ./templates/dashboard-adminuser.yaml
+kubectl apply -f ./templates/dashboard-adminuser-secret.yaml
+kubectl apply -f ./templates/cluster-role-binding.yaml
+
 
 echo
-echo "Use this token to login on http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/ :"
+echo "Use this token to login on http://localhost :"
 echo
 kubectl get -n kubernetes-dashboard secret/admin-user-secret -o=jsonpath='{.data.token}' | base64 -d
 echo
 echo
-
-# make the dashboard available
-kubectl proxy
