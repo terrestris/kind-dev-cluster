@@ -7,7 +7,7 @@ function wait_until_pods_have_started() {
   SELECTOR=$2
   EXPECTED_LENGTH=$3
   SLEEP_TIME=$4
-  
+
   echo "Waiting for $APP_NAME resources to be fully created"
   RESULT_LEN="$(kubectl get pod -n $APP_NAME -o go-template='{{.items | len}}')"
   until test $RESULT_LEN -eq $EXPECTED_LENGTH; do
@@ -39,7 +39,7 @@ kind delete cluster --name kind-dev-cluster
 kind create cluster --config kind-cluster.yaml
 
 # install ingress-nginx
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/kind/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.4/deploy/static/provider/kind/deploy.yaml
 wait_until_pods_have_started "ingress-nginx" "app.kubernetes.io/component=controller" 3 2
 
 # install kubernetes-dashboard

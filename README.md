@@ -35,4 +35,4 @@ kind delete clusters kind-dev-cluster
 
 ## Help
 
-In case `kubectl config current-context` does not return `kind-kind-dev-cluster`, you can set it with `kubectl config set-context kind-kind-dev-cluster`.
+In case `kubectl config current-context` does not return `kind-kind-dev-cluster`, you can set it with `kubectl config use-context kind-kind-dev-cluster`.
