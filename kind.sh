@@ -57,6 +57,6 @@ kubectl apply -f ./templates/cluster-role-binding.yaml
 echo
 echo "Use this token to login on http://localhost :"
 echo
-kubectl get -n kubernetes-dashboard secret/admin-user-secret -o=jsonpath='{.data.token}' | base64 -d
+./token.sh
 echo
 echo
