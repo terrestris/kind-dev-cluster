@@ -17,7 +17,7 @@ kind delete cluster --name kind-dev-cluster
 kind create cluster --config kind-cluster.yaml
 
 # install ingress-nginx
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.4/deploy/static/provider/kind/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.0/deploy/static/provider/kind/deploy.yaml
 ./wait_until_pods_have_started.sh "ingress-nginx" "app.kubernetes.io/component=controller" 3 2
 
 # install kubernetes-dashboard
