@@ -5,19 +5,16 @@ metadata:
   name: kubernetes-dashboard-ingress
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "https"
-    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
-  ingressClassName: "nginx"
-  tls:
-  - hosts:
-    - localhost
+  ingressClassName: nginx
   rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: kubernetes-dashboard
-            port:
-              number: 443
+    - host: localhost
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kubernetes-dashboard-kong-proxy
+                port:
+                  number: 443
