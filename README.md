@@ -13,6 +13,7 @@ It is based on [kind](https://kind.sigs.k8s.io/) (kubernetes in docker) and the 
 
 * [Docker](https://docs.docker.com/engine/install/)
 * [kind](https://kind.sigs.k8s.io/)
+* [helm](https://helm.sh/)
 * [kubectl](https://kubernetes.io/docs/tasks/tools/)
 
 ## Usage
