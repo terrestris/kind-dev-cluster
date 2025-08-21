@@ -33,15 +33,17 @@ helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dash
 kubectl apply -f ./templates/ingress-dashboard.yaml
 
 # create admin user and apply cluster role bindings
-# https://github.com/kubernetes/dashboard/blob/master/docs/user/access-control/creating-sample-user.md
-kubectl apply -f ./templates/dashboard-adminuser.yaml
-kubectl apply -f ./templates/dashboard-adminuser-secret.yaml
-kubectl apply -f ./templates/cluster-role-binding.yaml
+kubectl create serviceaccount admin-user -n kube-system
 
+# Create a ClusterRoleBinding to give the admin user cluster-admin permissions
+kubectl create clusterrolebinding admin-user-binding \
+  --clusterrole=cluster-admin \
+  --serviceaccount=kube-system:admin-user
 
 echo
-echo "Use this token to login on http://localhost :"
+echo "Use this token to login on https://localhost :"
 echo
-kubectl get -n kubernetes-dashboard secret/admin-user-secret -o=jsonpath='{.data.token}' | base64 -d
+# Create a token for the admin user
+kubectl create token admin-user -n kube-system
 echo
 echo
