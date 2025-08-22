@@ -1,8 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  namespace: kubernetes-dashboard
-  name: kubernetes-dashboard-ingress
+  name: argo-server-ingress
+  namespace: argo
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -12,10 +12,10 @@ spec:
     - host: localhost
       http:
         paths:
-          - path: /dashboard(/|$)(.*)
+          - path: /argo(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:
-                name: kubernetes-dashboard-kong-proxy
+                name: argo-server
                 port:
-                  number: 443
+                  number: 2746

@@ -22,7 +22,7 @@ Just execute the `kind.sh` script of this project.
 
 Be patient and wait until the script has finished.
 
-Copy the token that has been logged by the script and login [here](https://localhost).
+Copy the token that has been logged by the script and login [here](https://localhost/dashboard).
 
 In case you are not able to run on port 80 or 443, you can change the values in the `kind-cluster.yaml` config file.
 
