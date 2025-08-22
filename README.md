@@ -8,6 +8,7 @@ It is based on [kind](https://kind.sigs.k8s.io/) (kubernetes in docker) and the 
 
 * [ingress-nginx](https://github.com/kubernetes/ingress-nginx)
 * [Kubernetes Dashboard](https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/)
+* [Argo Workflows](https://argoproj.github.io/workflows/)
 
 ## Requirements
 
