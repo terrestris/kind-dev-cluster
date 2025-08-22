@@ -15,7 +15,7 @@ if [ ! -z "$3" ]; then
       sleep $SLEEP_TIME
       RESULT_LEN="$(kubectl get pod -n $APP_NAME -o go-template='{{.items | len}}')"
   done
-  echo "Resources for $APP_NAME have been fully created. The pods will start now."
+  echo "Resources for $APP_NAME have been fully created."
 fi
 
 # wait until the controller pod has fully started

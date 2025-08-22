@@ -14,12 +14,12 @@ else
     echo "Starting container $container_name..."
     docker start $container_name
 
-    ./wait_until_pods_have_started.sh "kubernetes-dashboard" "k8s-app=kubernetes-dashboard"
+    ./wait_until_pods_have_started.sh "kubernetes-dashboard" "app.kubernetes.io/instance=kubernetes-dashboard"
 
     echo
-    echo "Use this token to login on http://localhost :"
+    echo "Use this token to login on https://localhost/dashboard or https://localhost/argo :"
     echo
-    kubectl get -n kubernetes-dashboard secret/admin-user-secret -o=jsonpath='{.data.token}' | base64 -d
+    kubectl create token admin-user -n kube-system
     echo
     echo
 fi
