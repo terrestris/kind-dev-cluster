@@ -29,18 +29,18 @@ kubectl create clusterrolebinding admin-user-binding \
   --serviceaccount=kube-system:admin-user
 
 # install ingress-nginx
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.13.1/deploy/static/provider/kind/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.13.2/deploy/static/provider/kind/deploy.yaml
 
 # install the Kubernetes dashboard
 helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
 
 # Install argo
 kubectl create namespace argo
-kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.1/install.yaml
+kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.2/install.yaml
 kubectl -n argo patch deployment argo-server   --type='json'   -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env", "value": [{"name": "ARGO_BASE_HREF", "value": "/argo"}]}]'
 kubectl rollout restart deployment argo-server -n argo
 
-./wait_until_pods_have_started.sh "ingress-nginx" "app.kubernetes.io/instance=ingress-nginx" 1 2
+./wait_until_pods_have_started.sh "ingress-nginx" "app.kubernetes.io/instance=ingress-nginx" 3 2
 ./wait_until_pods_have_started.sh "kubernetes-dashboard" "app.kubernetes.io/instance=kubernetes-dashboard" 5 2
 # ./wait_until_pods_have_started.sh "argo" "app.kubernetes.io/instance=argo" 2 2
 
