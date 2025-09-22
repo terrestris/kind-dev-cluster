@@ -11,7 +11,6 @@ The cluster is based on [kind](https://kind.sigs.k8s.io/) (Kubernetes in Docker)
 
 Additionally, the setup includes a **Docker Registry Proxy**, which caches container images locally. This can significantly speed up image pulls/cluster startup and reduce external network usage.
 
----
 
 ## Requirements
 
@@ -24,7 +23,6 @@ You must have installed the following CLI tools:
 
 If you want to use argo, it also makes sense to install the [argo CLI tool](https://argo-workflows.readthedocs.io/en/latest/walk-through/argo-cli/)
 
----
 
 ## Usage
 
@@ -49,15 +47,12 @@ Be patient and wait until the script finishes. It will:
 
 3. If port 80 or 443 is not available, you can adjust the values in `kind-cluster.yaml`.
 
----
 
 ### Docker Registry Proxy
 
 The proxy listens inside the cluster at `docker-registry-proxy:3128`.
 All cluster nodes are configured to pull images via this proxy automatically.
 
-
----
 
 ### Using Argo Workflows
 
@@ -75,11 +70,8 @@ argo submit workflows/hello-world.yaml -n argo --watch
 argo get <workflow-name> -n argo
 ```
 
-The same commands work without port forwarding, using the Ingress at `https://localhost/argo`.
-
 To login to the UI, you have to enter `Bearer <TOKEN_VALUE_HERE>` in the auth field and click on "Login".
 
----
 
 ### Cleanup Cluster
 
@@ -89,7 +81,6 @@ Remove the cluster manually:
 kind delete cluster --name kind-dev-cluster
 ```
 
----
 
 ## Help
 
@@ -98,5 +89,3 @@ If `kubectl config current-context` does not return `kind-kind-dev-cluster`, set
 ```bash
 kubectl config use-context kind-kind-dev-cluster
 ```
-
----
