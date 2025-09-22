@@ -13,8 +13,63 @@ fi
 # delete any existing clusters
 kind delete cluster --name kind-dev-cluster
 
+COMPOSE_DIR="./docker-registry-proxy"
+SERVICE="docker-registry-proxy"
+
+# Ensure required directories exist
+mkdir -p "$COMPOSE_DIR/docker_mirror_cache"
+mkdir -p "$COMPOSE_DIR/docker_mirror_certs"
+
+# Start docker-registry-proxy compose from subfolder
+echo "Starting $SERVICE service..."
+docker compose -f "$COMPOSE_DIR/docker-compose.yml" up -d
+
+# Wait for the service to become healthy
+echo "Waiting for $SERVICE to become healthy..."
+while true; do
+    STATUS=$(docker inspect --format='{{.State.Health.Status}}' $SERVICE)
+    echo "Current status: $STATUS"
+
+    if [ "$STATUS" == "healthy" ]; then
+        echo "$SERVICE is healthy. Starting the cluster now."
+        break
+    elif [ "$STATUS" == "unhealthy" ]; then
+        echo "$SERVICE is unhealthy. Exiting."
+        exit 1
+    fi
+
+    sleep 2
+done
+
 # create the cluster based on the config
 kind create cluster --config kind-cluster.yaml
+
+SETUP_URL=http://docker-registry-proxy:3128/setup/systemd
+pids=""
+
+# Output in Variable speichern
+NODES=$(kind get nodes --name "kind-dev-cluster")
+
+echo "Found nodes: $NODES"
+
+# Über die Variable iterieren
+for NODE in $NODES; do
+  echo "Starting configuration for node: $NODE"
+
+  docker exec "$NODE" sh -c "\
+      curl $SETUP_URL \
+      | sed s/docker\.service/containerd\.service/g \
+      | sed '/Environment/ s/$/ \"NO_PROXY=127.0.0.0\/8,10.0.0.0\/8,172.16.0.0\/12,192.168.0.0\/16\"/' \
+      | bash" &
+
+  pid=$!
+  pids="$pids $pid"
+  echo "Started background process for node $NODE (PID: $pid)"
+done
+
+echo "Wait for all configurations to complete..."
+wait $pids
+echo "All configurations completed."
 
 # Add repositories for Helm charts
 echo "Adding kubernetes-dashboard Helm repository..."
@@ -37,10 +92,20 @@ helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dash
 # Install argo
 kubectl create namespace argo
 kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.2/install.yaml
-kubectl -n argo patch deployment argo-server   --type='json'   -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env", "value": [{"name": "ARGO_BASE_HREF", "value": "/argo"}]}]'
+kubectl -n argo set env deployment/argo-server ARGO_BASE_HREF=/argo
+
+# Create Argo workflow user with admin rights in the argo namespace
+kubectl create serviceaccount workflow-user -n argo
+
+# Create a RoleBinding giving workflow-user admin permissions in the argo namespace
+kubectl create rolebinding workflow-user-admin-binding \
+  --clusterrole=admin \
+  --serviceaccount=argo:workflow-user \
+  -n argo
+
 kubectl rollout restart deployment argo-server -n argo
 
-./wait_until_pods_have_started.sh "ingress-nginx" "app.kubernetes.io/instance=ingress-nginx" 3 2
+./wait_until_pods_have_started.sh "ingress-nginx" "app.kubernetes.io/instance=ingress-nginx" 1 2
 ./wait_until_pods_have_started.sh "kubernetes-dashboard" "app.kubernetes.io/instance=kubernetes-dashboard" 5 2
 # ./wait_until_pods_have_started.sh "argo" "app.kubernetes.io/instance=argo" 2 2
 
