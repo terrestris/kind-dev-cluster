@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: hello-world-
+  namespace: argo
+spec:
+  serviceAccountName: workflow-user
+  entrypoint: hello
+  templates:
+  - name: hello
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: ["echo 'Hello World'; sleep 20"]

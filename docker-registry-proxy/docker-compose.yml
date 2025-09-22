@@ -1,0 +1,27 @@
+# see https://maelvls.dev/docker-proxy-registry-kind/
+
+services:
+  docker-registry-proxy:
+    image: rpardini/docker-registry-proxy:0.6.5
+    container_name: docker-registry-proxy
+    hostname: docker-registry-proxy
+    networks:
+      - kind
+    ports:
+      - "3128:3128"
+    environment:
+      ENABLE_MANIFEST_CACHE: "true"
+      DISABLE_IPV6: "true"
+    volumes:
+      - ./docker_mirror_cache:/docker_mirror_cache
+      - ./docker_mirror_certs:/ca
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3128"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+networks:
+  kind:
+    external: true
