@@ -20,6 +20,21 @@ SERVICE="docker-registry-proxy"
 mkdir -p "$COMPOSE_DIR/docker_mirror_cache"
 mkdir -p "$COMPOSE_DIR/docker_mirror_certs"
 
+# Name of the Docker network we want to ensure exists
+NETWORK_NAME="kind"
+
+# Check if a Docker network with this name already exists
+# --format '{{.Name}}' lists only the names of all networks
+# grep -wq searches for an exact match quietly (no output)
+if ! docker network ls --format '{{.Name}}' | grep -wq "$NETWORK_NAME"; then
+  # If the network does NOT exist, create it
+  echo "Network '$NETWORK_NAME' does not exist. Creating it..."
+  docker network create "$NETWORK_NAME"
+else
+  # If the network already exists, do nothing
+  echo "Network '$NETWORK_NAME' already exists. Nothing to do."
+fi
+
 # Start docker-registry-proxy compose from subfolder
 echo "Starting $SERVICE service..."
 docker compose -f "$COMPOSE_DIR/docker-compose.yml" up -d
