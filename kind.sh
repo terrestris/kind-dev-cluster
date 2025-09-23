@@ -117,6 +117,6 @@ echo
 echo "Use this token to login on https://localhost/dashboard or https://localhost/argo :"
 echo
 # Create a token for the admin user
-kubectl create token admin-user -n kube-system
+kubectl create token admin-user -n kube-system --duration=24h
 echo
 echo
