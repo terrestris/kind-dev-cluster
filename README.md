@@ -70,7 +70,7 @@ argo submit workflows/hello-world.yaml -n argo --watch
 argo get <workflow-name> -n argo
 ```
 
-To login to the UI, you have to enter `Bearer <TOKEN_VALUE_HERE>` in the auth field and click on "Login".
+To login to the argo UI at [https://localhost/argo](https://localhost/argo), you have to enter `Bearer <TOKEN_VALUE_HERE>` in the auth field and click on "Login".
 
 
 ### Cleanup Cluster

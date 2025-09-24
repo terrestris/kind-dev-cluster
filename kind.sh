@@ -13,12 +13,15 @@ fi
 # delete any existing clusters
 kind delete cluster --name kind-dev-cluster
 
-COMPOSE_DIR="./docker-registry-proxy"
-SERVICE="docker-registry-proxy"
+DATA_DIR="./data"
+DOCKER_REGISTRY_PROXY_DIR="./docker-registry-proxy"
+DOCKER_REGISTRY_PROXY_SERVICE="docker-registry-proxy"
 
-# Ensure required directories exist
-mkdir -p "$COMPOSE_DIR/docker_mirror_cache"
-mkdir -p "$COMPOSE_DIR/docker_mirror_certs"
+# Ensure required data directories exist
+# These dirs are ignored by git via .gitignore
+mkdir -p "$DOCKER_REGISTRY_PROXY_DIR/docker_mirror_cache"
+mkdir -p "$DOCKER_REGISTRY_PROXY_DIR/docker_mirror_certs"
+mkdir -p "$DATA_DIR/argo-workflow-results"
 
 # Name of the Docker network we want to ensure exists
 NETWORK_NAME="kind"
@@ -36,20 +39,20 @@ else
 fi
 
 # Start docker-registry-proxy compose from subfolder
-echo "Starting $SERVICE service..."
-docker compose -f "$COMPOSE_DIR/docker-compose.yml" up -d
+echo "Starting $DOCKER_REGISTRY_PROXY_SERVICE service..."
+docker compose -f "$DOCKER_REGISTRY_PROXY_DIR/docker-compose.yml" up -d
 
 # Wait for the service to become healthy
-echo "Waiting for $SERVICE to become healthy..."
+echo "Waiting for $DOCKER_REGISTRY_PROXY_SERVICE to become healthy..."
 while true; do
-    STATUS=$(docker inspect --format='{{.State.Health.Status}}' $SERVICE)
+    STATUS=$(docker inspect --format='{{.State.Health.Status}}' $DOCKER_REGISTRY_PROXY_SERVICE)
     echo "Current status: $STATUS"
 
     if [ "$STATUS" == "healthy" ]; then
-        echo "$SERVICE is healthy. Starting the cluster now."
+        echo "$DOCKER_REGISTRY_PROXY_SERVICE is healthy. Starting the cluster now."
         break
     elif [ "$STATUS" == "unhealthy" ]; then
-        echo "$SERVICE is unhealthy. Exiting."
+        echo "$DOCKER_REGISTRY_PROXY_SERVICE is unhealthy. Exiting."
         exit 1
     fi
 
@@ -62,12 +65,12 @@ kind create cluster --config kind-cluster.yaml
 SETUP_URL=http://docker-registry-proxy:3128/setup/systemd
 pids=""
 
-# Output in Variable speichern
+# Save the list of nodes into a variable
 NODES=$(kind get nodes --name "kind-dev-cluster")
 
 echo "Found nodes: $NODES"
 
-# Über die Variable iterieren
+# Loop through each node and execute the curl command inside it
 for NODE in $NODES; do
   echo "Starting configuration for node: $NODE"
 
@@ -89,7 +92,6 @@ echo "All configurations completed."
 # Add repositories for Helm charts
 echo "Adding kubernetes-dashboard Helm repository..."
 helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-# helm repo add argo https://argoproj.github.io/argo-helm
 helm repo update
 
 # create admin user and apply cluster role bindings
@@ -127,7 +129,6 @@ kubectl rollout restart deployment argo-server -n argo
 
 ./wait_until_pods_have_started.sh "ingress-nginx" "app.kubernetes.io/instance=ingress-nginx" 1 2
 ./wait_until_pods_have_started.sh "kubernetes-dashboard" "app.kubernetes.io/instance=kubernetes-dashboard" 5 2
-# ./wait_until_pods_have_started.sh "argo" "app.kubernetes.io/instance=argo" 2 2
 
 # Apply ingress resources
 kubectl apply -f ./templates/ingress-dashboard.yaml
