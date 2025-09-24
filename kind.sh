@@ -21,6 +21,7 @@ DOCKER_REGISTRY_PROXY_SERVICE="docker-registry-proxy"
 # These dirs are ignored by git via .gitignore
 mkdir -p "$DOCKER_REGISTRY_PROXY_DIR/docker_mirror_cache"
 mkdir -p "$DOCKER_REGISTRY_PROXY_DIR/docker_mirror_certs"
+mkdir -p "$DATA_DIR/argo-workflow-input"
 mkdir -p "$DATA_DIR/argo-workflow-results"
 
 # Name of the Docker network we want to ensure exists
@@ -111,10 +112,10 @@ kubectl create namespace argo
 kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.2/install.yaml
 kubectl -n argo set env deployment/argo-server ARGO_BASE_HREF=/argo
 
-# Create a persistent volume (and claim) for Argo workflow results
-kubectl apply -f templates/argo-workflow-results-pv.yaml
-kubectl apply -f templates/argo-workflow-results-pvc.yaml
-echo "Created a persistent volume (and claim) for Argo workflow results."
+# Create persistent volumes and claims for argo workflow input and results
+kubectl apply -f templates/volume-argo-workflow-input.yaml
+kubectl apply -f templates/volume-argo-workflow-result.yaml
+echo "Created persistent volumes and claims for argo workflow input and results"
 
 # Create Argo workflow user with admin rights in the argo namespace
 kubectl create serviceaccount workflow-user -n argo

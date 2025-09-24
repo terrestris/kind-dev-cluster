@@ -13,3 +13,17 @@ spec:
     path: /mnt/argo-workflow-results
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: argo-workflow-results-pvc
+    namespace: argo
+spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+        requests:
+            storage: 2Gi
+    storageClassName: ""
