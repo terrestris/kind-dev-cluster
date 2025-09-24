@@ -1,7 +1,37 @@
+
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: argo-workflow-results-pv
+  name: argo-workflow-input-pv
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+  - ReadWriteMany
+  hostPath:
+    path: /mnt/argo-workflow-input
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: argo-workflow-input-pvc
+  namespace: argo
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: ""
+
+  ---
+  apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: argo-workflow-output-pv
 spec:
   capacity:
     storage: 2Gi
@@ -10,7 +40,7 @@ spec:
   hostPath:
     # This path should be under the nodes.extraMounts.containerPath of kind-cluster.yaml if we want to retain data after cluster deletion
     # as this is not a path on the host machine, but a path inside the kind node container (which is our host for the k8s cluster)
-    path: /mnt/argo-workflow-results
+    path: /mnt/argo-workflow-output
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
 
@@ -18,7 +48,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-    name: argo-workflow-results-pvc
+    name: argo-workflow-output-pvc
     namespace: argo
 spec:
     accessModes:

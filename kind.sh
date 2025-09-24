@@ -22,7 +22,7 @@ DOCKER_REGISTRY_PROXY_SERVICE="docker-registry-proxy"
 mkdir -p "$DOCKER_REGISTRY_PROXY_DIR/docker_mirror_cache"
 mkdir -p "$DOCKER_REGISTRY_PROXY_DIR/docker_mirror_certs"
 mkdir -p "$DATA_DIR/argo-workflow-input"
-mkdir -p "$DATA_DIR/argo-workflow-results"
+mkdir -p "$DATA_DIR/argo-workflow-output"
 
 # Name of the Docker network we want to ensure exists
 NETWORK_NAME="kind"
@@ -113,8 +113,7 @@ kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/dow
 kubectl -n argo set env deployment/argo-server ARGO_BASE_HREF=/argo
 
 # Create persistent volumes and claims for argo workflow input and results
-kubectl apply -f templates/volume-argo-workflow-input.yaml
-kubectl apply -f templates/volume-argo-workflow-result.yaml
+kubectl apply -f templates/volumes.yaml
 echo "Created persistent volumes and claims for argo workflow input and results"
 
 # Create Argo workflow user with admin rights in the argo namespace
@@ -132,8 +131,7 @@ kubectl rollout restart deployment argo-server -n argo
 ./wait_until_pods_have_started.sh "kubernetes-dashboard" "app.kubernetes.io/instance=kubernetes-dashboard" 5 2
 
 # Apply ingress resources
-kubectl apply -f ./templates/ingress-dashboard.yaml
-kubectl apply -f ./templates/ingress-argo.yaml
+kubectl apply -f ./templates/ingress.yaml
 
 echo
 echo "Use this token to login on https://localhost/dashboard or https://localhost/argo :"
