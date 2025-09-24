@@ -109,6 +109,11 @@ kubectl create namespace argo
 kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.2/install.yaml
 kubectl -n argo set env deployment/argo-server ARGO_BASE_HREF=/argo
 
+# Create a persistent volume (and claim) for Argo workflow results
+kubectl apply -f templates/argo-workflow-results-pv.yaml
+kubectl apply -f templates/argo-workflow-results-pvc.yaml
+echo "Created a persistent volume (and claim) for Argo workflow results."
+
 # Create Argo workflow user with admin rights in the argo namespace
 kubectl create serviceaccount workflow-user -n argo
 
