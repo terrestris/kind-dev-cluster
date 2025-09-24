@@ -4,3 +4,4 @@
 *.swp
 docker-registry-proxy/docker_mirror_cache
 docker-registry-proxy/docker_mirror_certs
+data/*
