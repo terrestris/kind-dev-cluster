@@ -93,6 +93,36 @@ echo "Wait for all configurations to complete..."
 wait $pids
 echo "All configurations completed."
 
+# Configure host.docker.internal via CoreDNS
+configure_host_docker_internal() {
+    echo "Configuring host.docker.internal..."
+
+    # Get the gateway IP of the kind network
+    GATEWAY_IP=$(docker network inspect kind | grep -oP '"Gateway":\s*"\K[^"]+' | head -1)
+
+    if [ -z "$GATEWAY_IP" ]; then
+        echo "Warning: Could not determine gateway IP. Using default 172.18.0.1"
+        GATEWAY_IP="172.18.0.1"
+    fi
+
+    echo "Using gateway IP: $GATEWAY_IP for host.docker.internal"
+
+    # Wait for CoreDNS to be ready
+    echo "Waiting for CoreDNS to be ready..."
+    kubectl wait --for=condition=ready pod -l k8s-app=kube-dns -n kube-system --timeout=120s
+
+    # Configure CoreDNS to resolve host.docker.internal
+    kubectl patch configmap coredns -n kube-system --type merge -p "{\"data\":{\"Corefile\":\".:53 {\\n    errors\\n    health {\\n       lameduck 5s\\n    }\\n    ready\\n    kubernetes cluster.local in-addr.arpa ip6.arpa {\\n       pods insecure\\n       fallthrough in-addr.arpa ip6.arpa\\n       ttl 30\\n    }\\n    prometheus :9153\\n    hosts {\\n       $GATEWAY_IP host.docker.internal\\n       fallthrough\\n    }\\n    forward . /etc/resolv.conf {\\n       max_concurrent 1000\\n    }\\n    cache 30\\n    loop\\n    reload\\n    loadbalance\\n}\"}}"
+
+    # Restart CoreDNS to apply changes
+    kubectl rollout restart deployment coredns -n kube-system
+
+    echo "host.docker.internal configured to resolve to $GATEWAY_IP"
+}
+
+# Call the function after proxy configurations
+configure_host_docker_internal
+
 # Add repositories for Helm charts
 echo "Adding kubernetes-dashboard Helm repository..."
 helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
