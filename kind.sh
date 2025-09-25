@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Software versions
+INGRESS_NGINX_VERSION="v1.13.2"
+ARGO_WORKFLOWS_VERSION="v3.7.2"
+
 # exit if cluster is already running
 if kind get clusters | grep -q 'kind-dev-cluster'; then
   read -p "Cluster kind-dev-cluster already exists! Do you want to DELETE it and continue (y/Y) or abort (n/N)?" -n 1 -r
@@ -102,14 +106,14 @@ kubectl create clusterrolebinding admin-user-binding \
   --serviceaccount=kube-system:admin-user
 
 # install ingress-nginx
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.13.2/deploy/static/provider/kind/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${INGRESS_NGINX_VERSION}/deploy/static/provider/kind/deploy.yaml
 
 # install the Kubernetes dashboard
 helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
 
 # Install argo
 kubectl create namespace argo
-kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.7.2/install.yaml
+kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/${ARGO_WORKFLOWS_VERSION}/install.yaml
 kubectl -n argo set env deployment/argo-server ARGO_BASE_HREF=/argo
 
 # Create persistent volumes and claims for argo workflow input and results
