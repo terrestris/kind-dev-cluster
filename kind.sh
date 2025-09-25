@@ -97,7 +97,7 @@ echo "All configurations completed."
 # Add repositories for Helm charts
 echo "Adding kubernetes-dashboard Helm repository..."
 helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-helm repo update
+helm repo update kubernetes-dashboard
 
 # create admin user and apply cluster role bindings
 kubectl create serviceaccount admin-user -n kube-system
