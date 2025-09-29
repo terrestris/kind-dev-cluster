@@ -12,15 +12,15 @@ SLEEP_TIME=$4      # Time to sleep between checks (in seconds)
 if [ ! -z "$3" ]; then
   echo "[$APP_NAME] Checking if all pod(s) have been created..."
 
-  # Get current number of pods in the namespace
-  RESULT_LEN="$(kubectl get pod -n $APP_NAME -o go-template='{{.items | len}}')"
+  # Get current number of pods matching the selector
+  RESULT_LEN="$(kubectl get pod -n $APP_NAME --selector=$SELECTOR -o go-template='{{.items | len}}')"
   echo "[$APP_NAME] Currently found $RESULT_LEN/$EXPECTED_LENGTH pod(s)."
 
   # Keep polling until the expected number of pods are created
   until test $RESULT_LEN -eq $EXPECTED_LENGTH; do
       echo "[$APP_NAME] Waiting... ($RESULT_LEN/$EXPECTED_LENGTH pods ready)"
       sleep $SLEEP_TIME
-      RESULT_LEN="$(kubectl get pod -n $APP_NAME -o go-template='{{.items | len}}')"
+      RESULT_LEN="$(kubectl get pod -n $APP_NAME --selector=$SELECTOR -o go-template='{{.items | len}}')"
   done
 
   echo "[$APP_NAME] All $EXPECTED_LENGTH pod(s) have been created."

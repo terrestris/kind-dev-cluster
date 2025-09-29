@@ -160,7 +160,7 @@ kubectl create rolebinding workflow-user-admin-binding \
 
 kubectl rollout restart deployment argo-server -n argo
 
-./wait_until_pods_have_started.sh "ingress-nginx" "app.kubernetes.io/instance=ingress-nginx" 1 2
+./wait_until_pods_have_started.sh "ingress-nginx" "app.kubernetes.io/component=controller,app.kubernetes.io/instance=ingress-nginx" 1 2
 ./wait_until_pods_have_started.sh "kubernetes-dashboard" "app.kubernetes.io/instance=kubernetes-dashboard" 5 2
 
 # Apply ingress resources
