@@ -3,6 +3,8 @@
 # Software versions
 INGRESS_NGINX_VERSION="v1.13.2"
 ARGO_WORKFLOWS_VERSION="v3.7.2"
+KUBERNETES_DASHBOARD_VERSION="7.14.0"
+KUBERNETES_DASHBOARD_CHART_URL="https://github.com/kubernetes/dashboard/releases/download/kubernetes-dashboard-${KUBERNETES_DASHBOARD_VERSION}/kubernetes-dashboard-${KUBERNETES_DASHBOARD_VERSION}.tgz"
 
 # exit if cluster is already running
 if kind get clusters | grep -q 'kind-dev-cluster'; then
@@ -123,11 +125,6 @@ configure_host_docker_internal() {
 # Call the function after proxy configurations
 configure_host_docker_internal
 
-# Add repositories for Helm charts
-echo "Adding kubernetes-dashboard Helm repository..."
-helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-helm repo update kubernetes-dashboard
-
 # create admin user and apply cluster role bindings
 kubectl create serviceaccount admin-user -n kube-system
 kubectl create clusterrolebinding admin-user-binding \
@@ -138,7 +135,13 @@ kubectl create clusterrolebinding admin-user-binding \
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-${INGRESS_NGINX_VERSION}/deploy/static/provider/kind/deploy.yaml
 
 # install the Kubernetes dashboard
-helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+# The kubernetes/dashboard project is archived and its Helm repo
+# (https://kubernetes.github.io/dashboard/) is offline, so we install the
+# last released chart directly from the GitHub release assets.
+if ! helm upgrade --install kubernetes-dashboard "$KUBERNETES_DASHBOARD_CHART_URL" --create-namespace --namespace kubernetes-dashboard; then
+  echo "Failed to install kubernetes-dashboard. Exiting."
+  exit 1
+fi
 
 # Install argo
 kubectl create namespace argo
